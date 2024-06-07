@@ -1,0 +1,4 @@
+[submodule "vendor/aviutl_exedit_sdk"]
+	path = vendor/aviutl_exedit_sdk
+	url = https://github.com/nazonoSAUNA/aviutl_exedit_sdk
+	branch = command
