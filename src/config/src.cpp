@@ -21,16 +21,18 @@ const char* FILTER_INFO = "パン v" VERSION " by karoterra";
 constexpr int IDC_COMBO_PANLAW = 1001;
 
 const PanLaw PAN_LAWS[] = {
+    PanLaw::Zero_dB,
     PanLaw::Minus3dB,
     PanLaw::Minus4_5dB,
     PanLaw::Minus6dB,
 };
+constexpr int DEFAULT_PAN_LAW_ID = 1;
 
 // グローバル変数
 
 HFONT g_font = NULL;
 HWND g_comboPanLaw = NULL;
-PanLaw g_panLaw = PAN_LAWS[0];
+PanLaw g_panLaw = PAN_LAWS[DEFAULT_PAN_LAW_ID];
 
 /**
  * @brief プロジェクト設定のPanLawを取得する
@@ -78,7 +80,7 @@ bool createFilterWindow(FilterPlugin* fp) {
         SendMessage(g_comboPanLaw, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(str));
     }
 
-    SendMessage(g_comboPanLaw, CB_SETCURSEL, 0, 0);
+    SendMessage(g_comboPanLaw, CB_SETCURSEL, DEFAULT_PAN_LAW_ID, 0);
 
     return true;
 }

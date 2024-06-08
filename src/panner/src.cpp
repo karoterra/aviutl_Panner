@@ -34,13 +34,13 @@ int TRACK_DRAG_MIN[TRACK_NUM] = { -100 };
 int TRACK_DRAG_MAX[TRACK_NUM] = { 100 };
 
 // Pan Law
-constexpr int PAN_LAW_NUM = 4;
-constexpr std::array<PanLaw, PAN_LAW_NUM> PAN_LAWS = {
+constexpr auto PAN_LAWS = std::to_array<PanLaw>({
     PanLaw::Default,
+    PanLaw::Zero_dB,
     PanLaw::Minus3dB,
     PanLaw::Minus4_5dB,
     PanLaw::Minus6dB,
-};
+    });
 
 // Pan Lawドロップダウンリスト用の文字列長の計算
 constexpr size_t calcTotalSize() {
@@ -121,7 +121,7 @@ void debugPrintln(const std::string& fmt, Args&&... args) {
  * @return int
  */
 int getPanLawIndex(PanLaw panlaw) {
-    for (int i = 0; i < PAN_LAW_NUM; i++) {
+    for (int i = 0; i < PAN_LAWS.size(); i++) {
         if (panlaw == PAN_LAWS[i]) {
             return i;
         }
@@ -207,7 +207,13 @@ BOOL func_proc(ExEdit::Filter* efp, ExEdit::FilterProcInfo* efpip) {
     float l = 1.f;
     float r = 1.f;
     switch (panlaw) {
-    case PanLaw::Default:
+    case PanLaw::Zero_dB: {
+        float theta = pan * std::numbers::pi / 2;
+        constexpr float A = 1.414213562f;
+        l = std::cos(theta) * A;
+        r = std::sin(theta) * A;
+        break;
+    }
     case PanLaw::Minus3dB: {
         float theta = pan * std::numbers::pi / 2;
         l = std::cos(theta);
@@ -308,7 +314,7 @@ BOOL func_WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam, AviUtl:
     if (message == ExEdit::ExtendedFilter::Message::WM_EXTENDEDFILTER_COMMAND) {
         // ドロップダウンリストが操作されたとき
         if (LOWORD(wparam) == ExEdit::ExtendedFilter::CommandId::EXTENDEDFILTER_SELECT_DROPDOWN) {
-            int panlawId = std::clamp(static_cast<int>(lparam), 0, PAN_LAW_NUM - 1);
+            int panlawId = std::clamp(static_cast<int>(lparam), 0, static_cast<int>(PAN_LAWS.size() - 1));
             auto panlaw = PAN_LAWS[panlawId];
             Exdata* exdata = reinterpret_cast<Exdata*>(efp->exdata_ptr);
             // Pan Lawが変更されたとき
