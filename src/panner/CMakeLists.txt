@@ -6,6 +6,10 @@ add_library(PannerMain SHARED
 target_include_directories(PannerMain
     PRIVATE ${PROJECT_SOURCE_DIR}/vendor/aviutl_exedit_sdk
 )
+target_compile_definitions(PannerMain
+    PRIVATE
+        VERSION="${PROJECT_VERSION}"
+)
 target_compile_options(PannerMain
     PRIVATE
         "$<$<CXX_COMPILER_ID:MSVC>:/source-charset:utf-8>"
