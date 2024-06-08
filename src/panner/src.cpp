@@ -69,6 +69,10 @@ ExEdit::ExdataUse EXDATA_USE[] = {
 // 参考: https://github.com/nazonoSAUNA/Echo.eef/blob/main/src.cpp
 static void(__cdecl* update_any_exdata)(ExEdit::ObjectFilterIndex, const char*) = nullptr;
 
+// PannerConfig.auf
+// プロジェクト設定のPanLawを取得する
+int32_t(*getProjectPanLaw)() = nullptr;
+
 /**
  * @brief デバッグ用のprintln
  *
@@ -163,18 +167,20 @@ BOOL func_proc(ExEdit::Filter* efp, ExEdit::FilterProcInfo* efpip) {
     }
 
     Exdata* exdata = reinterpret_cast<Exdata*>(efp->exdata_ptr);
+
+    // Pan Law
     PanLaw panlaw = exdata->panlaw;
     if (panlaw == PanLaw::Default) {
-        // TODO PanLaw::Defaultのときはプロジェクトの設定に従う
-        panlaw = PanLaw::Minus3dB;
+        panlaw = static_cast<PanLaw>(getProjectPanLaw());
     }
+
     // パン位置 [0, 1]
     float pan = static_cast<float>(efp->track[TRACK_ID_PAN] + 100) / 200.f;
 
     // ゲインの計算
     float l = 1.f;
     float r = 1.f;
-    switch (exdata->panlaw) {
+    switch (panlaw) {
     case PanLaw::Default:
     case PanLaw::Minus3dB: {
         float theta = pan * std::numbers::pi / 2;
@@ -242,6 +248,18 @@ BOOL func_init(ExEdit::Filter* efp) {
     auto exeditDllHinst = getExEditDllHinst(efp);
     if (!update_any_exdata) {
         update_any_exdata = reinterpret_cast<decltype(update_any_exdata)>(exeditDllHinst + 0x4a7e0);
+    }
+
+    HMODULE configMod = GetModuleHandle("PannerConfig.auf");
+    if (!configMod) {
+        debugPrintln("PannerConfig.aufが見つかりませんでした");
+        return FALSE;
+    }
+
+    getProjectPanLaw = reinterpret_cast<decltype(getProjectPanLaw)>(GetProcAddress(configMod, "getProjectPanLaw"));
+    if (!getProjectPanLaw) {
+        debugPrintln("getProjectPanLaw()が見つかりませんでした");
+        return FALSE;
     }
 
     return TRUE;

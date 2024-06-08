@@ -33,6 +33,15 @@ HWND g_comboPanLaw = NULL;
 PanLaw g_panLaw = PAN_LAWS[0];
 
 /**
+ * @brief プロジェクト設定のPanLawを取得する
+ *
+ * @return PanLaw
+ */
+DLLEXPORT int32_t getProjectPanLaw() {
+    return static_cast<int32_t>(g_panLaw);
+}
+
+/**
  * @brief 指定したウィンドウにフォントを設定する
  *
  * @param hwnd ウィンドウハンドル
@@ -101,8 +110,8 @@ BOOL func_init(FilterPlugin* fp) {
  */
 BOOL func_WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam, EditHandle* editp, FilterPlugin* fp) {
     switch (message) {
-    // ウィンドウハンドルなどの準備が完了した後の初期化処理
     case FilterPluginWindowMessage::Init:
+        // ウィンドウハンドルなどの準備が完了した後の初期化処理
         createFilterWindow(fp);
         break;
 
