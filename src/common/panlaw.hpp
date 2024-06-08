@@ -7,7 +7,7 @@ enum class PanLaw {
     Minus6dB = 3,
 };
 
-const char* panLawToString(PanLaw panLaw) {
+constexpr const char* panLawToString(PanLaw panLaw) {
     switch (panLaw) {
     case PanLaw::Default: return "プロジェクトの設定";
     case PanLaw::Minus3dB: return "-3dB";

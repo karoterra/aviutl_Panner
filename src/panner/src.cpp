@@ -1,5 +1,6 @@
 #include <Windows.h>
 
+#include <array>
 #include <string>
 #include <iostream>
 #include <format>
@@ -34,19 +35,44 @@ int TRACK_DRAG_MAX[TRACK_NUM] = { 100 };
 
 // Pan Law
 constexpr int PAN_LAW_NUM = 4;
-const PanLaw PAN_LAWS[PAN_LAW_NUM] = {
+constexpr std::array<PanLaw, PAN_LAW_NUM> PAN_LAWS = {
     PanLaw::Default,
     PanLaw::Minus3dB,
     PanLaw::Minus4_5dB,
     PanLaw::Minus6dB,
 };
 
+// Pan Lawドロップダウンリスト用の文字列長の計算
+constexpr size_t calcTotalSize() {
+    size_t size = 0;
+    for (const auto& law : PAN_LAWS) {
+        size += std::char_traits<char>::length(panLawToString(law)) + 1;
+    }
+    return size + 1;
+}
+
+// Pan Lawドロップダウンリスト用の文字列を生成
+constexpr auto generateDropDownString() {
+    std::array<char, calcTotalSize()> result{};
+    size_t pos = 0;
+    for (const auto& law : PAN_LAWS) {
+        const char* str = panLawToString(law);
+        while (*str) {
+            result[pos++] = *str++;
+        }
+        result[pos++] = '\0';
+    }
+    result[pos++] = '\0';
+    return result;
+}
+
+// Pan Lawドロップダウンリスト用の文字列
+constexpr auto dropDownString = generateDropDownString();
+
 // チェックボックス
 // 初期値を-2にするとドロップダウンリストになる
 constexpr int CHECK_NUM = 1;
-const char* CHECK_NAME[CHECK_NUM] = {
-    "プロジェクトの設定\0-3dB\0-4.5dB\0-6dB\0"
-};
+const char* CHECK_NAME[CHECK_NUM] = { dropDownString.data() };
 int CHECK_DEFAULT[CHECK_NUM] = { -2 };
 
 // Exdata
