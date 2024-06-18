@@ -143,18 +143,6 @@ bool isFlagSet(T x, T flag) {
 }
 
 /**
- * @brief 拡張編集のインスタンスハンドルを取得する
- *
- * https://github.com/nazonoSAUNA/Echo.eef/blob/main/src.cpp
- *
- * @param efp フィルタ構造体へのポインタ
- * @return int
- */
-int getExEditDllHinst(const ExEdit::Filter* efp) {
-    return reinterpret_cast<int>(efp->exfunc) - 0xa41e0;
-}
-
-/**
  * @brief フィルタ画面を更新
  *
  * @param efp フィルタ構造体へのポインタ
@@ -277,7 +265,7 @@ BOOL func_proc(ExEdit::Filter* efp, ExEdit::FilterProcInfo* efpip) {
 BOOL func_init(ExEdit::Filter* efp) {
     debugPrintln("func_init");
 
-    auto exeditDllHinst = getExEditDllHinst(efp);
+    auto exeditDllHinst = efp->exedit_fp->dll_hinst;
     if (!update_any_exdata) {
         update_any_exdata = reinterpret_cast<decltype(update_any_exdata)>(exeditDllHinst + 0x4a7e0);
     }
